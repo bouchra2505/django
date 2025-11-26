@@ -1,0 +1,34 @@
+name: Django CI & Deploy to Render
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        pip install -r course_service/requirements.txt
+
+    - name: Build Docker image
+      run: docker build -t django-course-service ./course_service
+
+    - name: Deploy to Render
+      uses: johnbeynon/render-deploy-action@v0.0.8
+      with:
+        service-id: ${{ secrets.SERVICE_ID }}
+        api-key: ${{ secrets.RENDER_API_KEY }}
+      
